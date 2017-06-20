@@ -1,0 +1,8 @@
+package: godocker
+import:
+- package: github.com/gorilla/mux
+  version: ~1.4.0
+- package: gopkg.in/h2non/bimg.v1
+  version: ~1.0.9
+- package: github.com/tj/go-debug
+  version: ~2.0.0
