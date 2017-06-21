@@ -3,6 +3,16 @@ FROM golang:1.8.3
 RUN apt-get update \
     && apt-get -y install --no-install-recommends \
         lsb-release \
+		libcv-dev \
+		libopencv-dev \
+		libopencv-contrib-dev \
+		libhighgui-dev \
+		libopencv-photo-dev \
+		libopencv-imgproc-dev \
+		libopencv-stitching-dev \
+		libopencv-superres-dev \
+		libopencv-ts-dev \
+		libopencv-videostab-dev \
     && curl -s https://raw.githubusercontent.com/h2non/bimg/master/preinstall.sh | bash -
 
 ENV PORT 8080
