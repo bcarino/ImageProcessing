@@ -17,8 +17,10 @@ func Resize(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	paramString := vars["params"]
+	paramUrl := vars["url"]
+	url := UrlDecode(paramUrl)
 	resizeParameter := SplitResizeParameters(paramString)
-	ResizeProcess("input.jpg", resizeParameter)
+	ResizeProcess(url, resizeParameter)
 
 	fmt.Fprintf(w, "process successfully in: %v", time.Since(start))
 }
@@ -28,8 +30,10 @@ func Crop(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	paramString := vars["params"]
+	paramUrl := vars["url"]
+	url := UrlDecode(paramUrl)
 	cropParameter := SplitCropParameters(paramString)
-	CropProcess("input.jpg", cropParameter)
+	CropProcess(url, cropParameter)
 
 	fmt.Fprintf(w, "process successfully in: %v", time.Since(start))
 }
