@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -18,9 +19,10 @@ func Resize(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paramString := vars["params"]
 	paramUrl := vars["url"]
+	paramType := vars["type"]
 	url := UrlDecode(paramUrl)
 	resizeParameter := SplitResizeParameters(paramString)
-	ResizeProcess(url, resizeParameter)
+	ResizeProcess(url, resizeParameter, strings.ToLower(paramType))
 
 	fmt.Fprintf(w, "process successfully in: %v", time.Since(start))
 }
@@ -31,9 +33,10 @@ func Crop(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	paramString := vars["params"]
 	paramUrl := vars["url"]
+	paramType := vars["type"]
 	url := UrlDecode(paramUrl)
 	cropParameter := SplitCropParameters(paramString)
-	CropProcess(url, cropParameter)
+	CropProcess(url, cropParameter, strings.ToLower(paramType))
 
 	fmt.Fprintf(w, "process successfully in: %v", time.Since(start))
 }
