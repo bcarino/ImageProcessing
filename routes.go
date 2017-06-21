@@ -21,13 +21,13 @@ var routes = Routes{
 	Route{
 		"Resize",
 		"GET",
-		"/S={params}",
+		"/s/{params}",
 		Resize,
 	},
 	Route{
 		"Crop",
 		"GET",
-		"/C={params}",
+		"/c/{params}",
 		Crop,
 	},
 }

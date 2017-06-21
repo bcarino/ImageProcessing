@@ -119,6 +119,23 @@ func ResizeProcess(url string, r ResizeParameter) {
 		newImage, err = image.Flop()
 		IsError(err)
 	}
+
+	if r.ResizeOption.Option.watermark {
+		watermarkBuffer, err := bimg.Read("watermark.png")
+		IsError(err)
+		watermarkImage := bimg.WatermarkImage{
+			Left:    10,
+			Top:     10,
+			Buf:     watermarkBuffer,
+			Opacity: 1.0,
+		}
+		options = bimg.Options{
+			WatermarkImage: watermarkImage,
+		}
+		newImage, err = image.Process(options)
+		IsError(err)
+	}
+
 	if r.ResizeOption.Option.grey {
 		newImage, err = image.Colourspace(bimg.InterpretationBW)
 		IsError(err)
@@ -204,11 +221,6 @@ func CropProcess(url string, c CropParameter) {
 		IsError(err)
 	}
 
-	if c.CropOption.Option.grey {
-		newImage, err = image.Colourspace(bimg.InterpretationBW)
-		IsError(err)
-	}
-
 	if c.CropOption.Option.watermark {
 		watermarkBuffer, err := bimg.Read("watermark.png")
 		IsError(err)
@@ -218,10 +230,15 @@ func CropProcess(url string, c CropParameter) {
 			Buf:     watermarkBuffer,
 			Opacity: 1.0,
 		}
-		options := bimg.Options{
+		options = bimg.Options{
 			WatermarkImage: watermarkImage,
 		}
 		newImage, err = image.Process(options)
+	}
+
+	if c.CropOption.Option.grey {
+		newImage, err = image.Colourspace(bimg.InterpretationBW)
+		IsError(err)
 	}
 
 	IsError(err)
