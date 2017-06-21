@@ -1,9 +1,16 @@
 package main
 
 import (
+	b64 "encoding/base64"
 	"strconv"
 	"strings"
 )
+
+func UrlDecode(code string) string {
+	decode, err := b64.StdEncoding.DecodeString(code)
+	IsError(err)
+	return string(decode)
+}
 
 func SplitResizeParameters(paramString string) ResizeParameter {
 	var resizeParameter ResizeParameter
