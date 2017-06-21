@@ -6,7 +6,7 @@ import (
 	bimg "gopkg.in/h2non/bimg.v1"
 )
 
-func ResizeProcess(url string, r ResizeParameter) {
+func ResizeProcess(url string, r ResizeParameter, imageType string) {
 	buffer, err := bimg.Read(url)
 	IsError(err)
 	image := bimg.NewImage(buffer)
@@ -141,10 +141,37 @@ func ResizeProcess(url string, r ResizeParameter) {
 		IsError(err)
 	}
 
-	bimg.Write("output.webp", newImage)
+	var convertType bimg.ImageType
+	switch imageType {
+	case "jpg", "jpeg":
+		convertType = bimg.JPEG
+	case "webp":
+		convertType = bimg.WEBP
+	case "png":
+		convertType = bimg.PNG
+	case "tif", "tiff":
+		convertType = bimg.TIFF
+	case "gif":
+		convertType = bimg.GIF
+	case "pdf":
+		convertType = bimg.PDF
+	case "svg":
+		convertType = bimg.SVG
+	case "magick":
+		convertType = bimg.MAGICK
+	}
+
+	options = bimg.Options{
+		Type: convertType,
+	}
+	newImage, err = image.Process(options)
+	IsError(err)
+
+	output := "output." + imageType
+	bimg.Write(output, newImage)
 }
 
-func CropProcess(url string, c CropParameter) {
+func CropProcess(url string, c CropParameter, imageType string) {
 	buffer, err := bimg.Read(url)
 	IsError(err)
 	image := bimg.NewImage(buffer)
@@ -241,6 +268,32 @@ func CropProcess(url string, c CropParameter) {
 		IsError(err)
 	}
 
+	var convertType bimg.ImageType
+	switch imageType {
+	case "jpg", "jpeg":
+		convertType = bimg.JPEG
+	case "webp":
+		convertType = bimg.WEBP
+	case "png":
+		convertType = bimg.PNG
+	case "tif", "tiff":
+		convertType = bimg.TIFF
+	case "gif":
+		convertType = bimg.GIF
+	case "pdf":
+		convertType = bimg.PDF
+	case "svg":
+		convertType = bimg.SVG
+	case "magick":
+		convertType = bimg.MAGICK
+	}
+
+	options = bimg.Options{
+		Type: convertType,
+	}
+	newImage, err = image.Process(options)
 	IsError(err)
-	bimg.Write("output.webp", newImage)
+
+	output := "output." + imageType
+	bimg.Write(output, newImage)
 }
