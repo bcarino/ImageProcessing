@@ -10,6 +10,7 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
+	sm()
 	fmt.Fprint(w, "Welcome!\n")
 }
 

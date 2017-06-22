@@ -1,14 +1,38 @@
-hash: 44df2b598b6af21247aa4c150faefcbe1475b753001bda983fda87d706764c79
-updated: 2017-06-21T08:48:34.861863648Z
+hash: ae514eeedc56f5fa5ab669ba2905b678ff501fb7f5fe21eacf1c3025e5e4066a
+updated: 2017-06-21T11:14:23.417033853Z
 imports:
+- name: github.com/golang/freetype
+  version: e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4
+  subpackages:
+  - raster
+  - truetype
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
   version: bcd8bc72b08df0f70df986b97f95590779502d31
+- name: github.com/lazywei/go-opencv
+  version: 17047d8d6015986f7c2d368458462acebac674ca
+  subpackages:
+  - opencv
+- name: github.com/llgcode/draw2d
+  version: dcbfbe505d35de8166ccfc47ff9e4bb020473e18
+  subpackages:
+  - draw2dbase
+  - draw2dimg
+  - draw2dkit
 - name: github.com/muesli/smartcrop
-  version: 1e9f6fae8da3b817daf2f8b04f9a615a3790bc43
+  version: 3ef790249732d4d0bd2ab9647f2ba94ed87896bf
+- name: github.com/nfnt/resize
+  version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
+- name: golang.org/x/image
+  version: 426cfd8eeb6e08ab1932954e09e3c2cb2bc6e36d
+  subpackages:
+  - draw
+  - font
+  - math/f64
+  - math/fixed
 - name: gopkg.in/h2non/bimg.v1
   version: 45f8993550e71ee7b8001d40c681c6c9fa822357
 testImports: []

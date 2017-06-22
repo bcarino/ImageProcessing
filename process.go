@@ -1,7 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"log"
+	"os"
 	"strings"
+
+	"github.com/muesli/smartcrop"
 
 	bimg "gopkg.in/h2non/bimg.v1"
 )
@@ -296,4 +304,26 @@ func CropProcess(url string, c CropParameter, imageType string) {
 
 	output := "output." + imageType
 	bimg.Write(output, newImage)
+}
+
+func sm() {
+	fi, err := os.Open("input.jpg")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	defer fi.Close()
+
+	img, _, err := image.Decode(fi)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	settings := smartcrop.CropSettings{
+		FaceDetection:                    true,
+		FaceDetectionHaarCascadeFilepath: "/haarcascades/haarcascade_frontalface_alt.xml",
+	}
+	analyzer := smartcrop.NewAnalyzerWithCropSettings(settings)
+	topCrop, _ := analyzer.FindBestCrop(img, 250, 250)
+	fmt.Printf("Top crop: %+v\n", topCrop)
 }
