@@ -49,3 +49,9 @@ type Edge struct {
 	bottom int
 	left   int
 }
+
+type SmartParameter struct {
+	width   Measure
+	height  Measure
+	cascade int
+}

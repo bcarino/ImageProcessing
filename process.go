@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"os"
 	"strings"
 
@@ -306,24 +304,69 @@ func CropProcess(url string, c CropParameter, imageType string) {
 	bimg.Write(output, newImage)
 }
 
-func sm() {
-	fi, err := os.Open("input.jpg")
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+func SmartProcess(url string, s SmartParameter, imageType string) {
+	fi, err := os.Open(url)
+	IsError(err)
 
 	defer fi.Close()
 
 	img, _, err := image.Decode(fi)
-	if err != nil {
-		log.Fatalf(err.Error())
+	IsError(err)
+
+	var cascade string
+	switch s.cascade {
+	case 0:
+		cascade = "haarcascade_frontalface_default"
+	case 1:
+		cascade = "haarcascade_frontalface_alt"
+	case 2:
+		cascade = "haarcascade_frontalface_alt2"
+	case 3:
+		cascade = "haarcascade_frontalface_alt_tree"
+	case 4:
+		cascade = "haarcascade_upperbody"
+	case 5:
+		cascade = "haarcascade_lowerbody"
+	case 6:
+		cascade = "haarcascade_fullbody"
+	case 7:
+		cascade = "haarcascade_profileface"
+	case 8:
+		cascade = "haarcascade_smile"
+	case 9:
+		cascade = "haarcascade_eye"
+	case 10:
+		cascade = "haarcascade_lefteye_2splits"
+	case 11:
+		cascade = "haarcascade_righteye_2splits"
+	case 12:
+		cascade = "haarcascade_eye_tree_eyeglasses"
+	default:
+		cascade = "haarcascade_frontalface_default"
 	}
 
 	settings := smartcrop.CropSettings{
 		FaceDetection:                    true,
-		FaceDetectionHaarCascadeFilepath: "/haarcascades/haarcascade_frontalface_alt.xml",
+		FaceDetectionHaarCascadeFilepath: "/go/src/godocker/haarcascades/" + cascade + ".xml",
 	}
 	analyzer := smartcrop.NewAnalyzerWithCropSettings(settings)
-	topCrop, _ := analyzer.FindBestCrop(img, 250, 250)
-	fmt.Printf("Top crop: %+v\n", topCrop)
+	topCrop, _ := analyzer.FindBestCrop(img, 150, 150)
+	cropWidth, cropHeight, xaxis, yaxis := topCrop.Width, topCrop.Height, topCrop.X, topCrop.Y
+
+	buffer, err := bimg.Read(url)
+	IsError(err)
+	image := bimg.NewImage(buffer)
+
+	options := bimg.Options{
+		AreaWidth:  cropWidth,
+		AreaHeight: cropHeight,
+		Top:        yaxis,
+		Left:       xaxis,
+	}
+
+	newImage, err := image.Process(options)
+	IsError(err)
+	output := "output." + imageType
+	bimg.Write(output, newImage)
+
 }

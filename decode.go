@@ -128,3 +128,40 @@ func SplitCropParameters(paramString string) CropParameter {
 	}
 	return cropParameter
 }
+
+func SplitSmartParameters(paramString string) SmartParameter {
+	var smartParameter SmartParameter
+	splitParams := strings.Split(paramString, ",")
+	for _, r := range splitParams {
+		i := 0
+		j := len(r) - 1
+		for i < len(r) {
+			if r[i] <= 57 && r[i] >= 48 {
+				break
+			} else {
+				i++
+			}
+		}
+		for j >= 0 {
+			if r[j] <= 57 && r[j] >= 48 {
+				break
+			} else {
+				j--
+			}
+		}
+		if i == len(r) {
+			r += "/"
+		}
+		switch strings.ToUpper(r[0:i]) {
+		case "W", "WEIGHT":
+			smartParameter.width.value, _ = strconv.Atoi(r[i : j+1])
+			smartParameter.width.modifier = r[j+1:]
+		case "H", "HEIGHT":
+			smartParameter.height.value, _ = strconv.Atoi(r[i : j+1])
+			smartParameter.height.modifier = r[j+1:]
+		case "C", "CASCADE":
+			smartParameter.cascade, _ = strconv.Atoi(r[i : j+1])
+		}
+	}
+	return smartParameter
+}
