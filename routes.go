@@ -21,19 +21,7 @@ var routes = Routes{
 	Route{
 		"Resize",
 		"GET",
-		"/r/{params}/{url}.{type}",
-		Resize,
-	},
-	Route{
-		"Crop",
-		"GET",
-		"/c/{params}/{url}.{type}",
-		Crop,
-	},
-	Route{
-		"SmartCrop",
-		"GET",
-		"/s/{params}/{url}.{type}",
-		SmartCrop,
+		"/{mode}/{params}/{url}.{type}",
+		ImageProcessing,
 	},
 }
