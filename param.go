@@ -57,8 +57,12 @@ type Params struct {
 
 //Options เก็บ option parameter ที่รับมาผ่าน path
 type Options struct {
-	force bool
-	crop  bool
+	force     bool
+	crop      bool
+	flip      bool //flips the image about the vertical Y axis.
+	flop      bool //flops the image about the horizontal X axis.
+	grey      bool
+	watermark bool
 }
 
 //Measure เป็นประเภทของพารามิเตอร์ ความกว้าง และ ความยาว ซึ่งประกอบด้วย ค่า(ตัวเลข) และ ส่วนขยาย(สตริง)
@@ -96,16 +100,24 @@ func SetParam(s string) error {
 			P.force = true
 		case "c", "crop":
 			P.crop = true
-		case "x", "xa", "xaxis":
+		case "x", "xaxis":
 			P.x = Measure{
 				value:    value,
 				modifier: modifier,
 			}
-		case "y", "ya", "yaxis":
+		case "y", "yaxis":
 			P.y = Measure{
 				value:    value,
 				modifier: modifier,
 			}
+		case "vf", "flip":
+			P.flip = true
+		case "hf", "flop":
+			P.flop = true
+		case "g", "greyscale":
+			P.grey = true
+		case "wm", "watermark":
+			P.watermark = true
 		default:
 			return errors.New("'" + name + "'" + " is not parameter\n")
 		}
@@ -184,6 +196,24 @@ func SetWidthHeightByRatio() {
 	} else {
 		I.ratio = float64(I.width) / float64(I.height)
 		if I.ratio >= B.ratio {
+			I.height = B.height * I.width / B.width
+		} else {
+			I.width = B.width * I.height / B.height
+		}
+	}
+
+}
+
+//SetFitWidthHeight กำหนดความกว้าง ความสูง ให้ได้ภาพที่ใหญ่ที่สุดภายใต้ความกว้าง ความสูงนั้นๆ
+func SetFitWidthHeight() {
+	SetWidthValue()
+	SetHeightValue()
+	if P.height.value == 0 {
+		I.height = B.height * I.width / B.width
+		I.ratio = float64(I.width) / float64(I.height)
+	} else {
+		I.ratio = float64(I.width) / float64(I.height)
+		if I.ratio <= B.ratio {
 			I.height = B.height * I.width / B.width
 		} else {
 			I.width = B.width * I.height / B.height

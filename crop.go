@@ -30,7 +30,8 @@ func Crop() error {
 }
 
 //SmartCrop crop รูปภาพโหมดฉลาด
-func SmartCrop() {
+func SmartCrop() error {
+	var err error
 	fi, _ := os.Open(URLDecode(P.url))
 
 	defer fi.Close()
@@ -105,11 +106,20 @@ func SmartCrop() {
 		Left:       I.x,
 	}
 
-	B.newImage, _ = B.image.Process(B.options)
+	B.newImage, err = B.image.Process(B.options)
+	if err != nil {
+		return err
+	}
 
 	B.options = bimg.Options{
 		Width:  tempWidth,
 		Height: tempHeight,
 	}
-	B.newImage, _ = B.image.Process(B.options)
+
+	B.newImage, err = B.image.Process(B.options)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

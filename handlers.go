@@ -62,16 +62,33 @@ func ImageProcessing(w http.ResponseWriter, r *http.Request) {
 
 	//ตรวจสอบ mode การทำ image processing ว่าจะ resize หรือ crop
 	switch strings.ToLower(P.mode) {
-	case "r", "R":
+	case "r", "resize":
 		err = ResizeForce()
 		isError(err)
 		err = ResizeCrop()
 		isError(err)
-	case "c", "C":
+	case "c", "crop":
 		err = Crop()
 		isError(err)
-	case "s", "S":
-		SmartCrop()
+	case "s", "smart":
+		err = SmartCrop()
+		isError(err)
+	}
+	if P.flip {
+		err = flip()
+		isError(err)
+	}
+	if P.flop {
+		err = flop()
+		isError(err)
+	}
+	if P.watermark {
+		err = watermark()
+		isError(err)
+	}
+	if P.grey {
+		err = grey()
+		isError(err)
 	}
 
 	//เขียนรูปภาพออกมาเป็นไฟล์ output._

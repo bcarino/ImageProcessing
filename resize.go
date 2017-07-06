@@ -10,7 +10,7 @@ func ResizeForce() error {
 	if P.force {
 		SetWidthHeightByOriginal()
 	} else {
-		SetWidthHeightByRatio()
+		SetFitWidthHeight()
 	}
 	B.options = bimg.Options{
 		Width:  I.width,
@@ -28,6 +28,14 @@ func ResizeCrop() error {
 	var err error
 	if P.crop {
 		SetWidthHeightByRatio()
+		B.options = bimg.Options{
+			Width:  I.width,
+			Height: I.height,
+		}
+		B.newImage, err = B.image.Process(B.options)
+		if err != nil {
+			return err
+		}
 		SetOriginalImage()
 		NoOutOfBounds()
 		B.options = bimg.Options{
