@@ -23,7 +23,7 @@ var B BImage
 var I Image
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Welcome!\n")
+	fmt.Fprint(w, "Hello!\n")
 }
 
 //ImageProcessing เป็นการประมวลผลภาพ
