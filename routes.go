@@ -21,7 +21,7 @@ var routes = Routes{
 	Route{
 		"Resize",
 		"GET",
-		"/{mode}/{params}/{url}.{type}",
+		"/{mode}/{params}/{url}",
 		ImageProcessing,
 	},
 }

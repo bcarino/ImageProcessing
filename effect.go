@@ -54,3 +54,16 @@ func watermark() error {
 	}
 	return nil
 }
+
+//setType กำหนดนามสกุลไฟล์
+func setType() error {
+	var err error
+	B.options = bimg.Options{
+		Type: bimg.DetermineImageType(B.buffer),
+	}
+	B.newImage, err = B.image.Process(B.options)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
-	"time"
-
-	b64 "encoding/base64"
-
-	bimg "gopkg.in/h2non/bimg.v1"
 
 	"github.com/gorilla/mux"
+	bimg "gopkg.in/h2non/bimg.v1"
 )
 
 // P เป็น PathParam ที่เก็บค่า mode, parameter,image url,image type ที่รับมาผ่าน path
@@ -23,39 +22,61 @@ var B BImage
 var I Image
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello!\n")
+	fmt.Fprint(w, "Hello2!\n")
 }
 
 //ImageProcessing เป็นการประมวลผลภาพ
 func ImageProcessing(w http.ResponseWriter, r *http.Request) {
-	//เวลาเริ่มต้น
-	start := time.Now()
+
+	//กำหนดค่าเริ่มต้น
 	Initialize()
-	var err error
-	isError := func(e error) {
-		if err != nil {
-			fmt.Fprintf(w, "error: %v", err)
-		}
-	}
 
 	//รับค่าผ่าน path และกำหนดค่าให้กับ PathParam
 	vars := mux.Vars(r)
-	P.mode = vars["mode"]
-	err = SetParam(vars["params"])
-	isError(err)
-	P.url = vars["url"]
-	P.imgType = vars["type"]
+	err := Validation(vars["mode"], vars["params"], vars["url"])
+	if err != nil {
+		Error404()
+	} else {
+		err := Process()
+		if err != nil {
+			Error500()
+		}
+	}
 
-	//อ่านรูปภาพ โดยต้อง decode url จากฐาน64 ให้เป็นสตริง
-	B.buffer, err = bimg.Read(URLDecode(P.url))
-	isError(err)
+	//Write image to http.ResponseWriter
+	b := B.newImage
+	switch bimg.DetermineImageTypeName(b) {
+	case "jpeg":
+		w.Header().Set("Content-Type", "image/jpeg")
+	case "gif":
+		w.Header().Set("Content-Type", "image/gif")
+	case "svg":
+		w.Header().Set("Content-Type", "image/svg+xml")
+	case "png":
+		w.Header().Set("Content-Type", "image/png")
+	case "webp":
+		w.Header().Set("Content-Type", "image/webp")
+	default:
+		w.Header().Set("Content-Type", "image/jpeg")
+	}
+	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+	w.Write(b)
+}
 
+func Process() error {
+
+	var err error
 	//เอา ความกว้าง ความยาว ของรูปภาพต้นฉบับ
 	var size bimg.ImageSize
 	size, err = bimg.Size(B.buffer)
-	isError(err)
+	if err != nil {
+		return err
+	}
 	B.width, B.height = size.Width, size.Height
 	B.ratio = float64(B.width) / float64(B.height)
+
+	//เอา type ของภาพ
+	P.imgType = bimg.DetermineImageTypeName(B.buffer)
 
 	//สร้าง Image ใหม่ จากรูปที่อ่านมา
 	B.image = bimg.NewImage(B.buffer)
@@ -64,47 +85,68 @@ func ImageProcessing(w http.ResponseWriter, r *http.Request) {
 	switch strings.ToLower(P.mode) {
 	case "r", "resize":
 		err = ResizeForce()
-		isError(err)
+		if err != nil {
+			return err
+		}
 		err = ResizeCrop()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	case "c", "crop":
 		err = Crop()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	case "s", "smart":
 		err = SmartCrop()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	}
 	if P.flip {
 		err = flip()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	}
 	if P.flop {
 		err = flop()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	}
 	if P.watermark {
 		err = watermark()
-		isError(err)
+		if err != nil {
+			return err
+		}
 	}
 	if P.grey {
 		err = grey()
-		isError(err)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = setType()
+	if err != nil {
+		return err
 	}
 
 	//เขียนรูปภาพออกมาเป็นไฟล์ output._
-	output := "output." + P.imgType
-	bimg.Write(output, B.newImage)
 
-	//แสดงเวลาสิ้นสุด
-	fmt.Fprintf(w, "process successfully in: %v", time.Since(start))
+	output := "output/output." + P.imgType
+	a, _ := filepath.Abs(output)
+	newpath := filepath.Join(".", "output/temp")
 
-	//แสดงค่าทั้งหมด
-	//fmt.Fprintf(w, "\nwidth: %+v %v\nheight: %v %v\nx: %v\ny: %v\nforce: %v\ncrop: %v\noriginal width: %v\noriginal height: %v\noriginal ratio: %v\nimage width: %v\nimage height: %v\nimage ratio: %v\n", P.width.value, P.width.modifier, P.height.value, P.height.modifier, P.x.value, P.y.value, P.force, P.crop, B.width, B.height, B.ratio, I.width, I.height, I.ratio)
-	fmt.Fprintf(w, "\n%+v\n{width:%v height:%v ratio:%v}\n%v", P, B.width, B.height, B.ratio, I)
-}
+	if _, err := os.Stat(newpath); os.IsNotExist(err) {
+		os.Mkdir(newpath, os.ModePerm)
+		bimg.Write(a, B.newImage)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
 
-//URLDecode แปลง url ที่อยุ่ในรูปฐาน 64 ให้เป็นสตริง
-func URLDecode(code string) string {
-	decode, _ := b64.StdEncoding.DecodeString(code)
-	return string(decode)
+	return nil
 }

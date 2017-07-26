@@ -3,9 +3,10 @@ package main
 import (
 	"image"
 	"math"
-	"os"
 
 	"github.com/muesli/smartcrop"
+
+	"bytes"
 
 	bimg "gopkg.in/h2non/bimg.v1"
 )
@@ -32,11 +33,16 @@ func Crop() error {
 //SmartCrop crop รูปภาพโหมดฉลาด
 func SmartCrop() error {
 	var err error
-	fi, _ := os.Open(URLDecode(P.url))
+	// fi, _ := os.Open(P.url)
 
-	defer fi.Close()
+	// defer fi.Close()
 
-	img, _, _ := image.Decode(fi)
+	// img, _, _ := image.Decode(fi)
+
+	img, _, err := image.Decode(bytes.NewReader(B.buffer))
+	if err != nil {
+		return err
+	}
 
 	cascade := "haarcascade_frontalface_default"
 
@@ -45,7 +51,10 @@ func SmartCrop() error {
 		FaceDetectionHaarCascadeFilepath: "/go/src/godocker/haarcascades/" + cascade + ".xml",
 	}
 	analyzer := smartcrop.NewAnalyzerWithCropSettings(settings)
-	topCrop, _ := analyzer.FindBestCrop(img, 100, 100)
+	topCrop, err := analyzer.FindBestCrop(img, 100, 100)
+	if err != nil {
+		return err
+	}
 	// topCropWidth, topCropHeight, topCropX, topCropY := topCrop.Width, topCrop.Height, topCrop.X, topCrop.Y
 	// fmt.Printf("%+v", topCrop)
 	S := Image{
