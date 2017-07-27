@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -36,10 +35,12 @@ func ImageProcessing(w http.ResponseWriter, r *http.Request) {
 	err := Validation(vars["mode"], vars["params"], vars["url"])
 	if err != nil {
 		Error404()
+		fmt.Println(err)
 	} else {
 		err := Process()
 		if err != nil {
 			Error500()
+			fmt.Println(err)
 		}
 	}
 
@@ -137,16 +138,7 @@ func Process() error {
 
 	output := "output/output." + P.imgType
 	a, _ := filepath.Abs(output)
-	newpath := filepath.Join(".", "output/temp")
-
-	if _, err := os.Stat(newpath); os.IsNotExist(err) {
-		os.Mkdir(newpath, os.ModePerm)
-		bimg.Write(a, B.newImage)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-	}
+	bimg.Write(a, B.newImage)
 
 	return nil
 }

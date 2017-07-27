@@ -57,6 +57,7 @@ func SmartCrop() error {
 	}
 	// topCropWidth, topCropHeight, topCropX, topCropY := topCrop.Width, topCrop.Height, topCrop.X, topCrop.Y
 	// fmt.Printf("%+v", topCrop)
+
 	S := Image{
 		width:  topCrop.Width,
 		height: topCrop.Height,
